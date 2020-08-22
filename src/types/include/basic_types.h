@@ -1,13 +1,24 @@
 #pragma once
 
 #include <type_traits>
+#include <limits>
 
 namespace svm
 {
 
 
 template<typename TypeConcept>
-concept Number = is_arithmetic_v<T>;
+concept Number = is_arithmetic_v<TypeConcept>;
+
+template<Number Num>
+inline constexpr const Number invalid() noexcept {
+    return std::numeric_limits<Num>::max();
+}
+
+template<Number Num> inline 
+constexpr const bool invalid(Number val) noexcept {
+    return val == invaid();
+}
 
 template<Number number>
 struct basic_value
