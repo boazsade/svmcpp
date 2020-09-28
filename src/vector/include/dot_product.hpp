@@ -2,11 +2,12 @@
 #include "vector.hpp"
 #include <numeric>
 #include <functional>
+#include <iterator>
 
 namespace svm
 {
 
-template<typename Iterator>
+template<std::random_access_iterator Iterator>
 inline constexpr typename Iterator::value_type 
     dot_product(Iterator start1, Iterator end1, Iterator start2) noexcept {
         using value_type = typename Iterator::value_type;
@@ -16,7 +17,7 @@ inline constexpr typename Iterator::value_type
                 std::multiplies<value_type>{});
 }
 
-template<typename Iterator, typename ExecutionPolicy>
+template<std::random_access_iterator Iterator, typename ExecutionPolicy>
 inline constexpr typename Iterator::value_type 
     dot_product(ExecutionPolicy&& policy, Iterator start1, Iterator end1, Iterator start2) noexcept {
         using value_type = typename Iterator::value_type;
