@@ -2,86 +2,87 @@
 #include "vector.hpp"
 #include <numeric>
 #include <functional>
-#include <iterator>
+#include <span>
 
 namespace svm
 {
 
-template<std::random_access_iterator Iterator>
-inline constexpr typename Iterator::value_type 
-    dot_product(Iterator start1, Iterator end1, Iterator start2) noexcept {
-        using value_type = typename Iterator::value_type;
+template<Number number> constexpr number 
+    dot_product(const std::span<const number> left, const std::span<const number> right) noexcept {
+        //using value_type = typename Iterator::value_type;
 
-        return std::transform_reduce(start1, end1, start2, value_type{},
-                std::plus<value_type>{}, 
-                std::multiplies<value_type>{});
+        return std::transform_reduce(std::begin(left), std::end(left), std::begin(right), number{},
+                std::plus<number>{}, 
+                std::multiplies<number>{});
 }
 
-template<std::random_access_iterator Iterator, typename ExecutionPolicy>
-inline constexpr typename Iterator::value_type 
-    dot_product(ExecutionPolicy&& policy, Iterator start1, Iterator end1, Iterator start2) noexcept {
-        using value_type = typename Iterator::value_type;
+template<Number number, typename ExecutionPolicy>
+inline constexpr number 
+    dot_product(ExecutionPolicy&& policy, const std::span<const number> left, const std::span<const number> right) noexcept {
 
-        return std::transform_reduce(policy, start1, end1, start2, value_type{},
-                std::plus<value_type>{},
-                std::multiplies<value_type>{}
+        return std::transform_reduce(policy, std::begin(left), std::end(left), std::begin(right), number{},
+                std::plus<number>{},
+                std::multiplies<number>{}
             );
 }
 
-inline constexpr dynamic_vector::value_type 
-    dot_product(const dynamic_vector& left, const dynamic_vector& right) noexcept {
-        if (std::size(vec) != std::size(left)) {
-            return invalid();
+template<Number Num>
+inline constexpr typename dynamic_vector<Num>::value_type 
+    dot_product(const dynamic_vector<Num>& left, const dynamic_vector<Num>& right) noexcept {
+        if (std::size(right) != std::size(left)) {
+            return invalid<Num>();
         } else {
-            return dot_product(std::begin(left), std::end(left), std::begin(right));
+            return dot_product(left, right);
         }
 }
 
-inline constexpr dynamic_vector::value_type 
-    dot_product(const static_vector& left, const dynamic_vector& right) noexcept {
-        if (std::size(vec) != std::size(left)) {
-            return invalid();
+template<Number Num, std::size_t I>
+inline constexpr typename dynamic_vector<Num>::value_type 
+    dot_product(const static_vector<Num, I>& left, const dynamic_vector<Num>& right) noexcept {
+        if (std::size(right) != std::size(left)) {
+            return invalid<Num>();
         } else {
-            return dot_product(std::begin(left), std::end(left), std::begin(right));
+            return dot_product(left, right);
         }
 }
 
-inline constexpr dynamic_vector::value_type 
-    dot_product(const dynamic_vector& left, const static_vector& right) noexcept {
-        if (std::size(vec) != std::size(left)) {
-            return invalid();
+template<Number Num, std::size_t I>
+inline constexpr typename dynamic_vector<Num>::value_type 
+    dot_product(const dynamic_vector<Num>& left, const static_vector<Num, I>& right) noexcept {
+        if (std::size(right) != std::size(left)) {
+            return invalid<Num>();
         } else {
-            return dot_product(std::begin(left), std::end(left), std::begin(right));
+            return dot_product(left, right);
         }
 }
 
-template<typename ExecutionPolicy>
-inline constexpr dynamic_vector::value_type 
-    dot_product(ExecutionPolicy&& ep, const dynamic_vector& left, const dynamic_vector& right) noexcept {
-        if (std::size(vec) != std::size(left)) {
-            return invalid();
+template<typename ExecutionPolicy, Number Num>
+inline constexpr typename dynamic_vector<Num>::value_type 
+    dot_product(ExecutionPolicy&& ep, const dynamic_vector<Num>& left, const dynamic_vector<Num>& right) noexcept {
+        if (std::size(right) != std::size(left)) {
+            return invalid<Num>();
         } else {
-            return dot_product(std::move(ep), std::begin(left), std::end(left), std::begin(right));
+            return dot_product(std::move(ep), left, right);
         }
 }
 
-template<typename ExecutionPolicy>
-inline constexpr dynamic_vector::value_type 
-    dot_product(const static_vector& left, const dynamic_vector& right) noexcept {
-        if (std::size(vec) != std::size(left)) {
-            return invalid();
+template<typename ExecutionPolicy, Number number, std::size_t I>
+inline constexpr typename dynamic_vector<number>::value_type 
+    dot_product(ExecutionPolicy&& ep, const static_vector<number, I>& left, const dynamic_vector<number>& right) noexcept {
+        if (std::size(right) != std::size(left)) {
+            return invalid<number>();
         } else {
-            return dot_product(std::move(ep), std::begin(left), std::end(left), std::begin(right));
+            return dot_product(std::move(ep), left, right);
         }
 }
 
-template<typename ExecutionPolicy>
-inline constexpr dynamic_vector::value_type 
-    dot_product(ExecutionPolicy&& ep, const dynamic_vector& left, const static_vector& right) noexcept {
-        if (std::size(vec) != std::size(left)) {
-            return invalid();
+template<typename ExecutionPolicy, Number number, std::size_t I>
+inline constexpr typename dynamic_vector<number>::value_type 
+    dot_product(ExecutionPolicy&& ep, const dynamic_vector<number>& left, const static_vector<number, I>& right) noexcept {
+        if (std::size(right) != std::size(left)) {
+            return invalid<number>();
         } else {
-            return dot_product(std::move(ep), std::begin(left), std::end(left), std::begin(right));
+            return dot_product(std::move(ep), left, right);
         }
 }
 
